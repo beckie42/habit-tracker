@@ -1,0 +1,101 @@
+'''Dictionaries containing all categories (category name: Category) and all
+resolutions (resolution name: category name)'''
+categories = {}
+resolutions = {}
+    
+class Category(object):
+    '''A category has a name,which will be displayed as a heading.
+    It contains a dictionary of resolutions, indexed by id.
+    It has a position (1-n) in an ordered list of categories.
+    It has a colour, indicating the background colour of the heading.
+    It has a row, indicating its display row.
+    It has an id, which is a unique identifier, used as an index.'''
+    def __init__(self, name, pos = len(categories) + 1, colour = "white",):
+        self.name = name
+        self.contents = {}
+        self.pos = pos
+        self.colour = colour
+        self.row = self.catrow()
+##        self.catid = catid
+##        catids[self.name] = self.catid
+##        categories[self.catid] = self
+        
+    def __str__(self):
+        return self.catid
+
+    def __repr__(self):
+        return "Category("+self.name+", "+str(self.pos)+", "+self.colour+")"
+
+    def catrow(category):
+        catrow = 0
+        if category.pos >= 3:
+            prevcat = categories[category.pos - 2]
+            catrow = len(prevcat.contents) + prevcat.row + 1
+        return catrow
+
+class Resolution(object):
+    def __init__(self, name, category, points, pos):
+        self.name = name
+        self.category = category
+##        self.catid = catids[self.category]
+        self.points = points
+        self.pos = pos
+        resolutions[self.name] = self.category
+##        self.resid = resid
+##        resids[self.name] = self.resid
+##        resolutions[self.resid] = self
+##        categories[self.catid].contents[self.resid] = self
+
+
+    def __repr__(self):
+        return "Resolution("+self.name+", "+self.category+", "+str(self.points)+", "+str(self.pos)+")"
+
+##    def delresolution(resolution):
+##        del categories[resolutions[resolution]][resolution]
+
+def newcategory():
+    defaultpos = len(categories) + 1
+    catname = input("name: ")
+    catpos = input("list position (default: end): ") or str(defaultpos)
+    catpos = int(catpos)
+    catcolour = input("header colour (default: white): ") or "white"
+##    catid = "cat"+str(defaultpos)
+##    cat = Category(catname, catid, catpos, catcolour)
+    categories[catname] = Category(catname, catpos, catcolour)
+    
+                      
+def newresolution():
+    resname = input("name: ")
+    respoints = (input("points: ")) or str(1)
+    respoints = int(respoints)
+    rescat = input("category: ") or 'a'
+##    cat = catids[rescat]
+##    print (cat)
+    defaultpos = len(categories[rescat].contents) + 1
+    respos = input("list position (default: 1): ") or str(defaultpos)
+    respos = int(respos)
+##    resid = "res"+str(defaultpos)
+##    res = Resolution(resname, resid, rescat, respoints, respos)
+    categories[rescat] = Resolution(resname, rescat, respoints, respos)
+    for name, value in categories.items():
+        globals()[name] = value
+##    print (resid)
+    
+##def varresolution(resolution):
+##    global resolution
+
+
+
+print (categories)
+newcategory()
+newresolution()
+##delresolution('b')
+##print (categories['a'])
+print (categories)
+print (resolutions)
+a
+
+##print (categories[catids['a']]) 
+##delresolution('b')
+##print (categories)
+##print (resolutions)
