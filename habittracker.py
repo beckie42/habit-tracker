@@ -1,3 +1,5 @@
+import datetime
+
 '''Dictionaries containing all categories (category name: Category) and all
 tasks (task name: Task)'''
 categories = {}
@@ -16,14 +18,19 @@ class Category(object):
         self.pos = pos
         self.colour = colour
         self.row = self.catrow()
+        self.column = self.catcolumn()
+        self.score = {}
 
     def __repr__(self):
         return "Category("+self.name+", "+str(self.pos)+", "+self.colour+")"
 
-    def catrow(category):
+    def catcolumn(self):
+        return abs(self.pos%2 - 1)
+    
+    def catrow(self):
         catrow = 0
-        if category.pos >= 3:
-            prevcat = categories[category.pos - 2]
+        if self.pos >= 3:
+            prevcat = categories[self.pos - 2]
             catrow = len(prevcat.contents) + prevcat.row + 1
         return catrow
 
@@ -35,16 +42,26 @@ the category are deleted'''
         del categories[self.name]
 
 class Task(object):
-    def __init__(self, name, category, points, pos):
+    def __init__(self, name, category, points, bonus, pos):
         self.name = name
         self.category = category
         self.points = points
+        self.bonus = bonus
         self.pos = pos
         tasks[self.name] = self.category
+        self.column = self.taskcolumn()
+        self.row = self.taskrow()
         categories[self.category].contents.insert(self.pos,self.name)
+        self.score = {}
 
     def __repr__(self):
         return "Task("+self.name+", "+self.category+", "+str(self.points)+", "+str(self.pos)+")"
+
+    def taskcolumn(self):
+        return categories[self.category].column
+
+    def taskrow(self):
+        return categories[self.category].row + self.pos
 
     def deltask(self):
         '''deletes a task from its category contents list, moves the position of
@@ -61,6 +78,20 @@ dictionary'''
         self.category = newcat
         categories[newcat].contents.insert(newpos, self.name)
 
+    def incrementscore(self, inc):
+        today = datetime.date.today()
+        yesterday = today + datetime.timedelta(days=-1)
+        if today in self.score:
+            self.score[today] += self.points * inc
+            categories[self.category].score[today] += self.points * inc
+        else:
+            self.score[today] = self.points * inc
+            categories[self.category].score[today] = self.points * inc
+        if yesterday in self.score and self.score[yesterday] > 0:
+            self.score[today] += self.bonus * inc
+            categories[self.category].score[today] += self.bonus * inc
+        
+
 def newcategory():
     defaultpos = len(categories) + 1
     catname = input("category name: ")
@@ -74,33 +105,31 @@ def newtask():
     taskname = input("task name: ")
     taskpoints = (input("points: ")) or str(1)
     taskpoints = int(taskpoints)
+    taskbonus = (input("bonus: ")) or str(0)
+    taskbonus = int(taskbonus)
     taskcat = input("category: ") or 'a'
     defaultpos = len(categories[taskcat].contents) + 1
     taskpos = input("list position (default: end): ") or str(defaultpos)
     taskpos = int(taskpos)
-    tasks[taskname] = Task(taskname, taskcat, taskpoints, taskpos)
+    tasks[taskname] = Task(taskname, taskcat, taskpoints, taskbonus, taskpos)
     
 
 
 
 print (categories)
 newcategory()
-newcategory()
-newtask()
-newtask()
 newtask()
 print (categories)
 print (tasks)
-print (categories['a'].contents)
-tasks['b'].deltask()
-print (categories['a'].contents)
-tasks['d'].changecat('a', 2)
-print (categories['a'].contents)
-print (categories['aa'].contents)
-categories['aa'].delcat()
-print (categories)
-
-
+print (tasks['b'].score, categories[tasks['b'].category].score)
+tasks['b'].incrementscore(1)
+print (tasks['b'].score, categories[tasks['b'].category].score)
+tasks['b'].incrementscore(-1)
+print (tasks['b'].score, categories[tasks['b'].category].score)
+tasks['b'].incrementscore(1)
+print (tasks['b'].score, categories[tasks['b'].category].score)
+tasks['b'].incrementscore(1)
+print (tasks['b'].score, categories[tasks['b'].category].score)
 
 
             
