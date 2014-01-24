@@ -1,9 +1,8 @@
 import datetime
 
-'''Dictionaries containing all categories (category name: Category) and all
-tasks (task name: Task)'''
-categories = {}
-tasks = {}
+categories = {} ##creates a blank dictionary to contain categories
+tasks = {}  ##creates a blank dictionary to contain all tasks
+currentdate = datetime.date.today()
     
 class Category(object):
     '''A category has a name,which will be displayed as a heading.
@@ -79,17 +78,20 @@ dictionary'''
         categories[newcat].contents.insert(newpos, self.name)
 
     def incrementscore(self, inc):
-        today = datetime.date.today()
-        yesterday = today + datetime.timedelta(days=-1)
-        if today in self.score:
-            self.score[today] += self.points * inc
-            categories[self.category].score[today] += self.points * inc
+        '''updates the score for a habit by creating or modifying an entry in
+the score dictionary (with the current date as key). The habit's points
+attribute is multiplied by inc to get the amount by which the score is changed'''
+        global currentdate
+        yesterday = currentdate + datetime.timedelta(days=-1)
+        if currentdate in self.score:
+            self.score[currentdate] += self.points * inc
+            categories[self.category].score[currentdate] += self.points * inc
         else:
-            self.score[today] = self.points * inc
-            categories[self.category].score[today] = self.points * inc
+            self.score[currentdate] = self.points * inc
+            categories[self.category].score[currentdate] = self.points * inc
         if yesterday in self.score and self.score[yesterday] > 0:
-            self.score[today] += self.bonus * inc
-            categories[self.category].score[today] += self.bonus * inc
+            self.score[currentdate] += self.bonus * inc
+            categories[self.category].score[currentdate] += self.bonus * inc
         
 
 def newcategory():
@@ -113,23 +115,35 @@ def newtask():
     taskpos = int(taskpos)
     tasks[taskname] = Task(taskname, taskcat, taskpoints, taskbonus, taskpos)
     
-
+def setdate():
+    isValid = False
+    while not isValid:
+        userdate = (input("date (dd/mm/yyyy): "))
+        try: # strptime throws an exception if the input doesn't match the pattern
+            d = datetime.datetime.strptime(userdate, "%d/%m/%Y").date()
+            isValid=True
+        except:
+            print ("Incorrect format. Try again. (dd/mm/yyyy)\n")
+    return d
+    
 
 
 print (categories)
-newcategory()
-newtask()
-print (categories)
-print (tasks)
-print (tasks['b'].score, categories[tasks['b'].category].score)
-tasks['b'].incrementscore(1)
-print (tasks['b'].score, categories[tasks['b'].category].score)
-tasks['b'].incrementscore(-1)
-print (tasks['b'].score, categories[tasks['b'].category].score)
-tasks['b'].incrementscore(1)
-print (tasks['b'].score, categories[tasks['b'].category].score)
-tasks['b'].incrementscore(1)
-print (tasks['b'].score, categories[tasks['b'].category].score)
+##newcategory()
+##newtask()
+##print (categories)
+##print (tasks)
+##print (tasks['b'].score, categories[tasks['b'].category].score)
+##tasks['b'].incrementscore(1)
+##print (tasks['b'].score, categories[tasks['b'].category].score)
+##tasks['b'].incrementscore(-1)
+##print (tasks['b'].score, categories[tasks['b'].category].score)
+##tasks['b'].incrementscore(1)
+##print (tasks['b'].score, categories[tasks['b'].category].score)
+##tasks['b'].incrementscore(1)
+##print (tasks['b'].score, categories[tasks['b'].category].score)
+a = setdate()
+print (a)
 
 
             
