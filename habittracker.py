@@ -1,5 +1,5 @@
 import datetime
-
+        
 categories = {} ##creates a blank dictionary to contain categories
 tasks = {}  ##creates a blank dictionary to contain all tasks
 currentdate = datetime.date.today()
@@ -125,25 +125,8 @@ def setdate():
         except:
             print ("Incorrect format. Try again. (dd/mm/yyyy)\n")
     return d
-    
 
 
-print (categories)
-##newcategory()
-##newtask()
-##print (categories)
-##print (tasks)
-##print (tasks['b'].score, categories[tasks['b'].category].score)
-##tasks['b'].incrementscore(1)
-##print (tasks['b'].score, categories[tasks['b'].category].score)
-##tasks['b'].incrementscore(-1)
-##print (tasks['b'].score, categories[tasks['b'].category].score)
-##tasks['b'].incrementscore(1)
-##print (tasks['b'].score, categories[tasks['b'].category].score)
-##tasks['b'].incrementscore(1)
-##print (tasks['b'].score, categories[tasks['b'].category].score)
-a = setdate()
-print (a)
 
 
             
