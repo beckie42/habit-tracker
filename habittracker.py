@@ -1,4 +1,65 @@
 import datetime
+import tkinter
+
+class habits(tkinter.Tk):
+    def __init__(self, parent):
+        tkinter.Tk.__init__(self, parent)
+        self.parent = parent
+        self.initialise()
+
+    def initialise(self):
+        self.grid()
+        self.username = "User"
+
+        self.titleVariable = tkinter.StringVar()
+        title = tkinter.Label(self, textvariable=self.titleVariable,
+                              fg="blue")
+        title.grid(column=0, row=0, columnspan=2)
+        
+        self.titleVariable.set(self.username + "'s Habits")
+
+        setuserbutton = tkinter.Button(self, text="Set user", command=lambda:
+                                       self.dialoguebox("Enter username", self.submit_name))
+        setuserbutton.grid(column=3, row=0)
+
+        catbutton = tkinter.Button(self, text="New category")
+        catbutton.grid(column=0, row=1)
+        
+        habbutton = tkinter.Button(self, text="New habit")
+        habbutton.grid(column=1, row=1)
+
+    def dialoguebox(self, msg, submit, extra=True):
+        top = self.top = tkinter.Toplevel(self)
+        dialoguelabel = tkinter.Label(top, text=msg)
+        dialoguelabel.grid(row=0, column=0)
+
+        if extra:
+            self.dialogueentry = tkinter.Entry(top)
+            self.dialogueentry.grid(row=1)
+            self.dialogueentry.focus_set()
+            self.dialogueentry.bind("<Return>", submit)
+
+            self.submitbutton = tkinter.Button(top, text="OK")
+            self.submitbutton.bind("<Button-1>", submit)
+            self.submitbutton.grid(row=2, column=1)
+
+        self.cancelbutton = tkinter.Button(top, text="Cancel",
+                                      command=lambda: self.top.destroy())
+        self.cancelbutton.grid(row=2, column=2)
+
+    def submit_name(self, event):
+        data = self.dialogueentry.get()
+        if data:
+            self.username = data
+            self.top.destroy()
+            self.titleVariable.set(self.username + "'s Habits")
+        
+                       
+
+if __name__ == "__main__":
+    app = habits(None)
+    app.title("It's going to be a great day!")
+    app.mainloop()
         
 categories = {} ##creates a blank dictionary to contain categories
 tasks = {}  ##creates a blank dictionary to contain all tasks
