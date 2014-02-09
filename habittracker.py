@@ -23,8 +23,6 @@ class HabitsGui(tkinter.Tk):
         self.rowVariable = tkinter.IntVar()
         self.rowVariable.set(len(self.handler.categories) + len(self.handler.tasks) + 1)
 
-##        self.lists = tkinter.Frame(self.parent, borderwidth=1)
-##        self.lists.grid()
         self.updatelists()
         
         setuserbutton = tkinter.Button(self, text="Set user", command=lambda:
@@ -56,23 +54,6 @@ class HabitsGui(tkinter.Tk):
             print (key)
             print (self.handler.categories[key].pos)
             print (self.key.grid_info())
-
-        
-##        for key in self.handler.categories:
-##            if key in self.labels:
-##                self.key.grid_configure(row = self.handler.categories[key].pos)
-##                print (key)
-##                print (self.handler.categories[key].pos)
-##                print (self.key.grid_info())
-##
-##            else:
-##                self.labels.insert(self.handler.categories[key].pos, key)
-##                self.key = tkinter.Label(self.lists, text=key,
-##                                      bg=self.handler.categories[key].colour)
-##                self.key.grid(column=0, row=self.handler.categories[key].pos)
-##                print (key)
-##                print (self.handler.categories[key].pos)
-##                print (self.key.grid_info())
 
     def dialoguebox(self, msg, submit, entries=1):
         top = self.top = tkinter.Toplevel(self)
@@ -221,22 +202,10 @@ class Category(object):
         self.contents = []
         self.pos = pos
         self.colour = colour
-##        self.row = self.catrow()
-##        self.column = self.catcolumn()
         self.score = {}
 
     def __repr__(self):
         return "Category("+self.name+", "+str(self.pos)+", "+self.colour+")"
-
-##    def catcolumn(self):
-##        return abs(self.pos%2 - 1)
-##    
-##    def catrow(self):
-##        catrow = 0
-##        if self.pos >= 3:
-##            prevcat = self.handler.categories[self.pos - 2]
-##            catrow = len(prevcat.contents) + prevcat.row + 1
-##        return catrow
 
 
 class Task(object):
@@ -246,9 +215,6 @@ class Task(object):
         self.points = points
         self.bonus = bonus
         self.pos = pos
-##        self.column = self.taskcolumn()
-##        self.row = self.taskrow()
-##        categories[self.category].contents.insert(self.pos,self.name)
         self.score = {}
 
     def __repr__(self):
