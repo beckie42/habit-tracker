@@ -11,7 +11,6 @@ class HabitsGui(tkinter.Tk):
         self.grid()
         self.username = "User"
         self.handler = HabitsHandler()
-        self.labels = []
 
         self.titleVariable = tkinter.StringVar()
         title = tkinter.Label(self, textvariable=self.titleVariable,
@@ -46,14 +45,17 @@ class HabitsGui(tkinter.Tk):
             self.lists.destroy()
         self.lists = tkinter.Frame(self.parent, borderwidth=1)
         self.lists.grid(row=1)
-        for key in self.handler.categories:
-            self.labels.insert(self.handler.categories[key].pos, key)
-            self.key = tkinter.Label(self.lists, text=key,
-                                  bg=self.handler.categories[key].colour)
-            self.key.grid(column=0, row=self.handler.categories[key].pos)
-            print (key)
-            print (self.handler.categories[key].pos)
-            print (self.key.grid_info())
+        print (self.handler.categories)
+        for category in self.handler.categories:
+            print (self.handler.categories[category].contents)
+            self.tasks = tkinter.Frame(self.lists, borderwidth=1)
+            self.tasks.grid(column=0, row=self.handler.categories[category].pos)
+            self.category = tkinter.Label(self.tasks, text=category,
+                                  bg=self.handler.categories[category].colour)
+            
+            for task in self.handler.categories[category].contents:
+                self.task = tkinter.Label(self.tasks, text=task)
+                self.task.grid(column=0, row=self.handler.tasks[task].pos)
 
     def dialoguebox(self, msg, submit, entries=1):
         top = self.top = tkinter.Toplevel(self)
