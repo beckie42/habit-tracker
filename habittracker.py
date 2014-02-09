@@ -11,6 +11,7 @@ class HabitsGui(tkinter.Tk):
         self.grid()
         self.username = "User"
         self.handler = HabitsHandler()
+        self.labels = []
 
         self.titleVariable = tkinter.StringVar()
         title = tkinter.Label(self, textvariable=self.titleVariable,
@@ -19,6 +20,13 @@ class HabitsGui(tkinter.Tk):
         
         self.titleVariable.set(self.username + "'s Habits")
 
+        self.rowVariable = tkinter.IntVar()
+        self.rowVariable.set(len(self.handler.categories) + len(self.handler.tasks) + 1)
+
+##        self.lists = tkinter.Frame(self.parent, borderwidth=1)
+##        self.lists.grid()
+        self.updatelists()
+        
         setuserbutton = tkinter.Button(self, text="Set user", command=lambda:
                                        self.dialoguebox(["Enter username"], self.submit_name))
         setuserbutton.grid(column=3, row=0)
@@ -26,14 +34,45 @@ class HabitsGui(tkinter.Tk):
         catbutton = tkinter.Button(self, text="New category", command=lambda:
                                 self.dialoguebox(["Category name:", "Position:",
                                     "Heading colour:"], self.submit_newcategory, 3))
-        catbutton.grid(column=0, row=1)
+        catbutton.grid(column=0, row=self.rowVariable.get())
         
         habbutton = tkinter.Button(self, text="New habit", command=lambda:
                                    self.dialoguebox(["Task name:", "Category:",
                                         "Points:", "Bonus points:", "Position:"],
                                         self.submit_newtask, 5))
-        habbutton.grid(column=1, row=1)
+        habbutton.grid(column=1, row=self.rowVariable.get())
 
+
+    def updatelists(self):
+        if hasattr(self, 'lists'):
+            self.lists.destroy()
+        self.lists = tkinter.Frame(self.parent, borderwidth=1)
+        self.lists.grid(row=1)
+        for key in self.handler.categories:
+            self.labels.insert(self.handler.categories[key].pos, key)
+            self.key = tkinter.Label(self.lists, text=key,
+                                  bg=self.handler.categories[key].colour)
+            self.key.grid(column=0, row=self.handler.categories[key].pos)
+            print (key)
+            print (self.handler.categories[key].pos)
+            print (self.key.grid_info())
+
+        
+##        for key in self.handler.categories:
+##            if key in self.labels:
+##                self.key.grid_configure(row = self.handler.categories[key].pos)
+##                print (key)
+##                print (self.handler.categories[key].pos)
+##                print (self.key.grid_info())
+##
+##            else:
+##                self.labels.insert(self.handler.categories[key].pos, key)
+##                self.key = tkinter.Label(self.lists, text=key,
+##                                      bg=self.handler.categories[key].colour)
+##                self.key.grid(column=0, row=self.handler.categories[key].pos)
+##                print (key)
+##                print (self.handler.categories[key].pos)
+##                print (self.key.grid_info())
 
     def dialoguebox(self, msg, submit, entries=1):
         top = self.top = tkinter.Toplevel(self)
@@ -74,17 +113,18 @@ catname, catpos, catcolour'''
         else:
             data.append('new category')
         if self.allentries[1].get() != '':
-            data.append(int(self.allentries[1]))
+            data.append(int(self.allentries[1].get()))
         else:
             data.append(len(self.handler.categories))
         if self.allentries[2].get() != '':
-            data.append(self.allentries[2])
+            data.append(self.allentries[2].get())
         else:
             data.append('white')
         
         if data:
-            self.handler.categories[data[0]] = Category(data[0], data[1], data[2])
+            self.handler.newcategory(data[0], data[1], data[2])
             self.top.destroy()
+            self.updatelists()
 
     def submit_newtask(self, event):
         '''creates a new task with dialogue entries
@@ -95,36 +135,42 @@ taskname, taskcat, taskpoints, taskbonus, taskpos'''
         else:
             data.append('new task')
         if self.allentries[1].get() != '':
-            data.append(self.allentries[1])
+            data.append(self.allentries[1].get())
         else:
-            data.append('uncategorised')
+            data.append('Uncategorised')
         if self.allentries[2].get() != '':
-            data.append(int(self.allentries[2]))
+            data.append(int(self.allentries[2].get()))
         else:
             data.append(1)
         if self.allentries[3].get() != '':
-            data.append(int(self.allentries[3]))
+            data.append(int(self.allentries[3].get()))
         else:
             data.append(0)
         if self.allentries[4].get() != '':
-            data.append(self.allentries[4])
+            data.append(self.allentries[4].get())
         else:
             data.append(len(self.handler.categories[data[1]].contents) + 1)
         
         if data:
             self.handler.newtask(data[0], data[1], data[2], data[3], data[4])
             self.top.destroy()
+            self.updatelists()
             
         
 class HabitsHandler():
     def __init__(self):
         self.categories = {} ##creates a blank dictionary to contain categories
-        self.newcategory('uncategorised', 1, 'white')
+        self.newcategory('Uncategorised', 1, 'white')
         self.tasks = {}  ##creates a blank dictionary to contain all tasks
         self.currentdate = datetime.date.today()
 
     def newcategory(self, catname, catpos, catcolour):
         self.categories[catname] = Category(catname, catpos, catcolour)
+        for e in self.categories:
+            if e == catname:
+                pass
+            elif self.categories[e].pos >= self.categories[catname].pos:
+                self.categories[e].pos += 1
                           
     def newtask(self, taskname, taskcat, taskpoints, taskbonus, taskpos):
         self.tasks[taskname] = Task(taskname, taskcat, taskpoints, taskbonus, taskpos)
@@ -175,22 +221,22 @@ class Category(object):
         self.contents = []
         self.pos = pos
         self.colour = colour
-        self.row = self.catrow()
-        self.column = self.catcolumn()
+##        self.row = self.catrow()
+##        self.column = self.catcolumn()
         self.score = {}
 
     def __repr__(self):
         return "Category("+self.name+", "+str(self.pos)+", "+self.colour+")"
 
-    def catcolumn(self):
-        return abs(self.pos%2 - 1)
-    
-    def catrow(self):
-        catrow = 0
-        if self.pos >= 3:
-            prevcat = categories[self.pos - 2]
-            catrow = len(prevcat.contents) + prevcat.row + 1
-        return catrow
+##    def catcolumn(self):
+##        return abs(self.pos%2 - 1)
+##    
+##    def catrow(self):
+##        catrow = 0
+##        if self.pos >= 3:
+##            prevcat = self.handler.categories[self.pos - 2]
+##            catrow = len(prevcat.contents) + prevcat.row + 1
+##        return catrow
 
 
 class Task(object):
