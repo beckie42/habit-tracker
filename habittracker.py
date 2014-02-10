@@ -43,15 +43,16 @@ class HabitsGui(tkinter.Tk):
     def updatelists(self):
         if hasattr(self, 'lists'):
             self.lists.destroy()
-        self.lists = tkinter.Frame(self.parent, borderwidth=1)
+        self.lists = tkinter.Frame(self.parent, borderwidth=5, relief='groove')
         self.lists.grid(row=1)
         print (self.handler.categories)
         for category in self.handler.categories:
             print (self.handler.categories[category].contents)
-            self.tasks = tkinter.Frame(self.lists, borderwidth=1)
+            self.tasks = tkinter.Frame(self.lists, borderwidth=5, relief='groove')
             self.tasks.grid(column=0, row=self.handler.categories[category].pos)
             self.category = tkinter.Label(self.tasks, text=category,
                                   bg=self.handler.categories[category].colour)
+            self.category.grid()
             
             for task in self.handler.categories[category].contents:
                 self.task = tkinter.Label(self.tasks, text=task)
@@ -113,24 +114,24 @@ catname, catpos, catcolour'''
         '''creates a new task with dialogue entries
 taskname, taskcat, taskpoints, taskbonus, taskpos'''
         data = []
-        if self.allentries[0].get() != '':
+        if self.allentries[0].get() != '': #name
             data.append(self.allentries[0].get())
         else:
             data.append('new task')
-        if self.allentries[1].get() != '':
+        if self.allentries[1].get() != '': #category
             data.append(self.allentries[1].get())
         else:
             data.append('Uncategorised')
-        if self.allentries[2].get() != '':
+        if self.allentries[2].get() != '': #points
             data.append(int(self.allentries[2].get()))
         else:
             data.append(1)
-        if self.allentries[3].get() != '':
+        if self.allentries[3].get() != '': #bonus points
             data.append(int(self.allentries[3].get()))
         else:
             data.append(0)
-        if self.allentries[4].get() != '':
-            data.append(self.allentries[4].get())
+        if self.allentries[4].get() != '': #position
+            data.append(int(self.allentries[4].get()))
         else:
             data.append(len(self.handler.categories[data[1]].contents) + 1)
         
@@ -158,6 +159,11 @@ class HabitsHandler():
     def newtask(self, taskname, taskcat, taskpoints, taskbonus, taskpos):
         self.tasks[taskname] = Task(taskname, taskcat, taskpoints, taskbonus, taskpos)
         self.categories[taskcat].contents.insert(taskpos, taskname)
+        for e in self.tasks:
+            if e == taskname:
+                pass
+            elif self.tasks[e].pos >= self.tasks[taskname].pos:
+                self.tasks[e].pos += 1
         
     def delcat(self, cat):
         '''Deletes a Category from the categories dictionary. All tasks within
