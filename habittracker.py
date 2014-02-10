@@ -45,18 +45,20 @@ class HabitsGui(tkinter.Tk):
             self.lists.destroy()
         self.lists = tkinter.Frame(self.parent, borderwidth=5, relief='groove')
         self.lists.grid(row=1)
-        print (self.handler.categories)
         for category in self.handler.categories:
-            print (self.handler.categories[category].contents)
             self.tasks = tkinter.Frame(self.lists, borderwidth=5, relief='groove')
-            self.tasks.grid(column=0, row=self.handler.categories[category].pos)
+            self.tasks.grid(column=0, row=self.handler.categories[category].pos, columnspan=3)
             self.category = tkinter.Label(self.tasks, text=category,
                                   bg=self.handler.categories[category].colour)
             self.category.grid()
             
             for task in self.handler.categories[category].contents:
-                self.task = tkinter.Label(self.tasks, text=task)
-                self.task.grid(column=0, row=self.handler.tasks[task].pos)
+                self.task = tkinter.Label(self.tasks, text=task + " ("
+                                    + str(self.handler.tasks[task].points) + ")")
+                self.task.grid(column=1, row=self.handler.tasks[task].pos)
+                self.taskcount = tkinter.Label(self.tasks,
+                                            text=self.handler.todayscount(task))
+                self.taskcount.grid(column=0, row=self.handler.tasks[task].pos)
 
     def dialoguebox(self, msg, submit, entries=1):
         top = self.top = tkinter.Toplevel(self)
@@ -146,6 +148,7 @@ class HabitsHandler():
         self.categories = {} ##creates a blank dictionary to contain categories
         self.newcategory('Uncategorised', 1, 'white')
         self.tasks = {}  ##creates a blank dictionary to contain all tasks
+        self.tally = {} ##creates a blank dictionary to store counts of tasks by date
         self.currentdate = datetime.date.today()
 
     def newcategory(self, catname, catpos, catcolour):
@@ -197,6 +200,33 @@ dictionary'''
             except:
                 print ("Incorrect format. Try again. (dd/mm/yyyy)\n")
         self.currentdate = d
+
+    def todayscount(self, task):
+        if (self.currentdate not in self.tally) or (task not in self.tally[self.currentdate]):
+            return 0
+        else:
+            return self.tally[self.currentdate][task]
+
+'''
+need to update references now that this is under handler, not task
+'''
+##    def incrementscore(self, inc):
+##        '''updates the score for a habit by creating or modifying an entry in
+##the score dictionary (with the current date as key). The habit's points
+##attribute is multiplied by inc to get the amount by which the score is changed'''
+##        yesterday = self.currentdate + datetime.timedelta(days=-1)
+##        if self.currentdate in self.score:
+##            self.score[self.currentdate] += self.points * inc
+##            self.count[self.currentdate] += 1                                                 
+##            categories[self.category].score[self.currentdate] += self.points * inc
+##        else:
+##            self.score[self.currentdate] = self.points * inc
+##            self.count[self.currentdate] += 1  
+##            categories[self.category].score[self.currentdate] = self.points * inc
+##        if yesterday in self.score and self.score[yesterday] > 0:
+##            self.score[self.currentdate] += self.bonus * inc
+##            categories[self.category].score[self.currentdate] += self.bonus * inc
+
     
 class Category(object):
     '''A category has a name,which will be displayed as a heading.
@@ -223,34 +253,10 @@ class Task(object):
         self.points = points
         self.bonus = bonus
         self.pos = pos
-        self.score = {}
 
     def __repr__(self):
         return "Task("+self.name+", "+self.category+", "+str(self.points)+", "+str(self.pos)+")"
 
-    def taskcolumn(self):
-        return categories[self.category].column
-
-    def taskrow(self):
-        return categories[self.category].row + self.pos
-
-
-
-    def incrementscore(self, inc):
-        '''updates the score for a habit by creating or modifying an entry in
-the score dictionary (with the current date as key). The habit's points
-attribute is multiplied by inc to get the amount by which the score is changed'''
-        global currentdate
-        yesterday = currentdate + datetime.timedelta(days=-1)
-        if currentdate in self.score:
-            self.score[currentdate] += self.points * inc
-            categories[self.category].score[currentdate] += self.points * inc
-        else:
-            self.score[currentdate] = self.points * inc
-            categories[self.category].score[currentdate] = self.points * inc
-        if yesterday in self.score and self.score[yesterday] > 0:
-            self.score[currentdate] += self.bonus * inc
-            categories[self.category].score[currentdate] += self.bonus * inc
         
 
                        
@@ -266,3 +272,9 @@ if __name__ == "__main__":
             
 
 
+'''
+things to fix:
+- bind enter when button selected to button click
+- layout
+- visual indication of bonus (eg text colour?)
+'''
