@@ -50,15 +50,23 @@ class HabitsGui(tkinter.Tk):
             self.tasks.grid(column=0, row=self.handler.categories[category].pos, columnspan=3)
             self.category = tkinter.Label(self.tasks, text=category,
                                   bg=self.handler.categories[category].colour)
-            self.category.grid()
+            self.category.grid(columnspan=3)
             
             for task in self.handler.categories[category].contents:
                 self.task = tkinter.Label(self.tasks, text=task + " ("
                                     + str(self.handler.tasks[task].points) + ")")
-                self.task.grid(column=1, row=self.handler.tasks[task].pos)
+                self.task.grid(column=3, row=self.handler.tasks[task].pos)
                 self.taskcount = tkinter.Label(self.tasks,
                                             text=self.handler.todayscount(task))
-                self.taskcount.grid(column=0, row=self.handler.tasks[task].pos)
+                self.taskcount.grid(column=1, row=self.handler.tasks[task].pos)
+                self.plusbutton = tkinter.Button(self.tasks, text="+", command=lambda:
+                                    self.increment(task, 1))
+                self.minusbutton = tkinter.Button(self.tasks, text="-", command=lambda:
+                                self.increment(task, -1))
+                self.plusbutton.grid(column=0, row=self.handler.tasks[task].pos)
+                self.minusbutton.grid(column=2, row=self.handler.tasks[task].pos)
+                
+
 
     def dialoguebox(self, msg, submit, entries=1):
         top = self.top = tkinter.Toplevel(self)
@@ -142,6 +150,10 @@ taskname, taskcat, taskpoints, taskbonus, taskpos'''
             self.top.destroy()
             self.updatelists()
             
+    def increment(self, task, inc):
+        self.handler.incrementtally(task, inc)
+        self.updatelists()
+
         
 class HabitsHandler():
     def __init__(self):
@@ -149,6 +161,7 @@ class HabitsHandler():
         self.newcategory('Uncategorised', 1, 'white')
         self.tasks = {}  ##creates a blank dictionary to contain all tasks
         self.tally = {} ##creates a blank dictionary to store counts of tasks by date
+        self.score = {} ##creates a blank dictionary to store task scores by date
         self.currentdate = datetime.date.today()
 
     def newcategory(self, catname, catpos, catcolour):
@@ -207,25 +220,27 @@ dictionary'''
         else:
             return self.tally[self.currentdate][task]
 
-'''
-need to update references now that this is under handler, not task
-'''
-##    def incrementscore(self, inc):
-##        '''updates the score for a habit by creating or modifying an entry in
-##the score dictionary (with the current date as key). The habit's points
-##attribute is multiplied by inc to get the amount by which the score is changed'''
-##        yesterday = self.currentdate + datetime.timedelta(days=-1)
-##        if self.currentdate in self.score:
-##            self.score[self.currentdate] += self.points * inc
-##            self.count[self.currentdate] += 1                                                 
-##            categories[self.category].score[self.currentdate] += self.points * inc
-##        else:
-##            self.score[self.currentdate] = self.points * inc
-##            self.count[self.currentdate] += 1  
-##            categories[self.category].score[self.currentdate] = self.points * inc
-##        if yesterday in self.score and self.score[yesterday] > 0:
-##            self.score[self.currentdate] += self.bonus * inc
-##            categories[self.category].score[self.currentdate] += self.bonus * inc
+    def incrementtally(self, task, inc):
+        '''updates the tally for a habit by creating or modifying an entry in
+the score dictionary (with the current date as key)'''
+        if self.currentdate in self.tally:
+            print ('date in self.tally')
+            print (task, self.tally[self.currentdate])
+            if task in self.tally[self.currentdate]:
+                print (task, self.tally[self.currentdate])
+                if self.tally[self.currentdate][task] + inc >= 0:
+                    self.tally[self.currentdate][task] += inc
+                else:
+                    print ('<0')
+            else:
+                self.tally[self.currentdate][task] = inc
+                print ('task not in tally')
+                
+        else:
+            self.tally[self.currentdate] = {}
+            self.tally[self.currentdate][task] = inc
+        print (self.tally)
+            
 
     
 class Category(object):
