@@ -23,6 +23,7 @@ class HabitsGui(tkinter.Tk):
         self.rowVariable.set(len(self.handler.categories) + len(self.handler.tasks) + 1)
 
         self.updatelists()
+        self.taskbuttons = []
         
         setuserbutton = tkinter.Button(self, text="Set user", command=lambda:
                                        self.dialoguebox(["Enter username"], self.submit_name))
@@ -56,15 +57,19 @@ class HabitsGui(tkinter.Tk):
                 self.task = tkinter.Label(self.tasks, text=task + " ("
                                     + str(self.handler.tasks[task].points) + ")")
                 self.task.grid(column=3, row=self.handler.tasks[task].pos)
-                self.taskcount = tkinter.Label(self.tasks,
+                self.task.taskcount = tkinter.Label(self.tasks,
                                             text=self.handler.todayscount(task))
-                self.taskcount.grid(column=1, row=self.handler.tasks[task].pos)
-                self.plusbutton = tkinter.Button(self.tasks, text="+", command=lambda:
+                self.task.taskcount.grid(column=1, row=self.handler.tasks[task].pos)
+                plusname = task + "plus"
+                minusname = task + "minus"
+                self.plusname = tkinter.Button(self.tasks, text="+", command=lambda task=task:
                                     self.increment(task, 1))
-                self.minusbutton = tkinter.Button(self.tasks, text="-", command=lambda:
+                self.minusname = tkinter.Button(self.tasks, text="-", command=lambda task=task:
                                 self.increment(task, -1))
-                self.plusbutton.grid(column=0, row=self.handler.tasks[task].pos)
-                self.minusbutton.grid(column=2, row=self.handler.tasks[task].pos)
+                self.plusname.grid(column=0, row=self.handler.tasks[task].pos)
+                self.minusname.grid(column=2, row=self.handler.tasks[task].pos)
+                self.taskbuttons.append(self.plusname)
+                self.taskbuttons.append(self.minusname)
                 
 
 
@@ -85,6 +90,7 @@ class HabitsGui(tkinter.Tk):
 
         self.submitbutton = tkinter.Button(top, text="OK")
         self.submitbutton.bind("<Button-1>", submit)
+        self.submitbutton.bind("<Return>", submit)
         self.submitbutton.grid(row=entries+1, column=1, sticky='e')
 
         self.cancelbutton = tkinter.Button(top, text="Cancel",
@@ -224,22 +230,15 @@ dictionary'''
         '''updates the tally for a habit by creating or modifying an entry in
 the score dictionary (with the current date as key)'''
         if self.currentdate in self.tally:
-            print ('date in self.tally')
-            print (task, self.tally[self.currentdate])
             if task in self.tally[self.currentdate]:
-                print (task, self.tally[self.currentdate])
                 if self.tally[self.currentdate][task] + inc >= 0:
                     self.tally[self.currentdate][task] += inc
-                else:
-                    print ('<0')
             else:
                 self.tally[self.currentdate][task] = inc
-                print ('task not in tally')
                 
         else:
             self.tally[self.currentdate] = {}
             self.tally[self.currentdate][task] = inc
-        print (self.tally)
             
 
     
@@ -272,7 +271,6 @@ class Task(object):
     def __repr__(self):
         return "Task("+self.name+", "+self.category+", "+str(self.points)+", "+str(self.pos)+")"
 
-        
 
                        
 
