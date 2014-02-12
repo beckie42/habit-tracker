@@ -45,7 +45,7 @@ class HabitsGui(tkinter.Tk):
         if hasattr(self, 'lists'):
             self.lists.destroy()
         self.lists = tkinter.Frame(self.parent, borderwidth=5, relief='groove')
-        self.lists.grid(row=1)
+        self.lists.grid(row=1, columnspan=4)
         for category in self.handler.categories:
             self.tasks = tkinter.Frame(self.lists, borderwidth=5, relief='groove')
             self.tasks.grid(column=0, row=self.handler.categories[category].pos, columnspan=3)
@@ -60,16 +60,14 @@ class HabitsGui(tkinter.Tk):
                 self.task.taskcount = tkinter.Label(self.tasks,
                                             text=self.handler.todayscount(task))
                 self.task.taskcount.grid(column=1, row=self.handler.tasks[task].pos)
-                plusname = task + "plus"
-                minusname = task + "minus"
-                self.plusname = tkinter.Button(self.tasks, text="+", command=lambda task=task:
+                self.plusbutton = tkinter.Button(self.tasks, text="+", command=lambda task=task:
                                     self.increment(task, 1))
-                self.minusname = tkinter.Button(self.tasks, text="-", command=lambda task=task:
+                self.minusbutton = tkinter.Button(self.tasks, text="-", command=lambda task=task:
                                 self.increment(task, -1))
-                self.plusname.grid(column=0, row=self.handler.tasks[task].pos)
-                self.minusname.grid(column=2, row=self.handler.tasks[task].pos)
-                self.taskbuttons.append(self.plusname)
-                self.taskbuttons.append(self.minusname)
+                self.plusbutton.grid(column=0, row=self.handler.tasks[task].pos)
+                self.minusbutton.grid(column=2, row=self.handler.tasks[task].pos)
+                self.taskscore = tkinter.Label(self.tasks, text=self.handler.todayscore(task))
+                self.taskscore.grid(column=4, row=self.handler.tasks[task].pos)
                 
 
 
@@ -226,6 +224,17 @@ dictionary'''
         else:
             return self.tally[self.currentdate][task]
 
+    def todayscore(self, task):
+        yesterday = self.currentdate + datetime.timedelta(days=-1)
+        if (self.currentdate not in self.tally) or (task not in self.tally[self.currentdate]):
+            return 0
+        else:
+            if yesterday in self.tally and self.tally[yesterday] != 0:
+                return self.tally[self.currentdate][task]*self.tasks[task].points + self.tasks[task].bonus
+            else:
+                return self.tally[self.currentdate][task]*self.tasks[task].points
+                                               
+
     def incrementtally(self, task, inc):
         '''updates the tally for a habit by creating or modifying an entry in
 the score dictionary (with the current date as key)'''
@@ -290,4 +299,6 @@ things to fix:
 - bind enter when button selected to button click
 - layout
 - visual indication of bonus (eg text colour?)
+- match case of entered text
+- require unique category, task names
 '''
