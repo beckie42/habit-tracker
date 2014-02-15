@@ -16,19 +16,28 @@ class HabitsGui(tkinter.Tk):
         title = tkinter.Label(self, textvariable=self.titleVariable,
                               fg="blue")
         title.grid(column=0, row=0, columnspan=2)
-        
         self.titleVariable.set(self.username + "'s Habits")
 
-        self.rowVariable = tkinter.IntVar()
-        self.rowVariable.set(len(self.handler.categories) + len(self.handler.tasks) + 1)
+        self.dateVariable = tkinter.StringVar()
+        currentdate = tkinter.Label(self, textvariable=self.dateVariable)
+        currentdate.grid(column=0, row=1)
+        self.dateVariable.set(str(self.handler.currentdate))
 
+        scorelabel = tkinter.Label(self, text="Today's score:")
+        scorelabel.grid(row=1, column=2, sticky='e')
+        self.scoreVariable = tkinter.StringVar()
+        score = tkinter.Label(self, textvariable=self.scoreVariable)
+        score.grid(row=1, column=3)
+        
         self.updatelists()
-        self.taskbuttons = []
         
         setuserbutton = tkinter.Button(self, text="Set user", command=lambda:
                                        self.dialoguebox(["Enter username"], self.submit_name))
         setuserbutton.grid(column=3, row=0)
 
+        self.rowVariable = tkinter.IntVar()
+        self.rowVariable.set(len(self.handler.categories) + len(self.handler.tasks) + 2)
+        
         catbutton = tkinter.Button(self, text="New category", command=lambda:
                                 self.dialoguebox(["Category name:", "Position:",
                                     "Heading colour:"], self.submit_newcategory, 3))
@@ -41,17 +50,20 @@ class HabitsGui(tkinter.Tk):
         habbutton.grid(column=1, row=self.rowVariable.get())
 
 
+
     def updatelists(self):
         if hasattr(self, 'lists'):
             self.lists.destroy()
         self.lists = tkinter.Frame(self.parent, borderwidth=5, relief='groove')
-        self.lists.grid(row=1, columnspan=4)
+        self.lists.grid(row=2, columnspan=4)
         for category in self.handler.categories:
-            self.tasks = tkinter.Frame(self.lists, borderwidth=5, relief='groove')
+            self.tasks = tkinter.Frame(self.lists, borderwidth=5)
             self.tasks.grid(column=0, row=self.handler.categories[category].pos, columnspan=3)
             self.category = tkinter.Label(self.tasks, text=category,
                                   bg=self.handler.categories[category].colour)
             self.category.grid(columnspan=3)
+            self.catscore = tkinter.Label(self.tasks, text=self.handler.todaycatscore(category))
+            self.catscore.grid(column=4, row=0)
             
             for task in self.handler.categories[category].contents:
                 self.task = tkinter.Label(self.tasks, text=task + " ("
@@ -68,6 +80,7 @@ class HabitsGui(tkinter.Tk):
                 self.minusbutton.grid(column=2, row=self.handler.tasks[task].pos)
                 self.taskscore = tkinter.Label(self.tasks, text=self.handler.todayscore(task))
                 self.taskscore.grid(column=4, row=self.handler.tasks[task].pos)
+        self.scoreVariable.set(str(self.handler.todaytotalscore()))
                 
 
 
@@ -106,10 +119,13 @@ class HabitsGui(tkinter.Tk):
         '''creates a new category with dialogue entries
 catname, catpos, catcolour'''
         data = []
-        if self.allentries[0].get() != '':
-            data.append(self.allentries[0].get())
+        if self.allentries[0].get() in self.handler.categories:
+            tkinter.messagebox.showerror("Error!", '''This category already exists. \nPlease enter a unique category name.''')
         else:
-            data.append('new category')
+            if self.allentries[0].get() != '':
+                data.append(self.allentries[0].get())
+            else:
+                data.append('new category')
         if self.allentries[1].get() != '':
             data.append(int(self.allentries[1].get()))
         else:
@@ -233,7 +249,18 @@ dictionary'''
                 return self.tally[self.currentdate][task]*self.tasks[task].points + self.tasks[task].bonus
             else:
                 return self.tally[self.currentdate][task]*self.tasks[task].points
-                                               
+
+    def todaycatscore(self, category):
+        score = 0
+        for task in self.categories[category].contents:
+            score += self.todayscore(task)
+        return score
+
+    def todaytotalscore(self):
+        score = 0
+        for category in self.categories:
+            score += self.todaycatscore(category)
+        return score
 
     def incrementtally(self, task, inc):
         '''updates the tally for a habit by creating or modifying an entry in
